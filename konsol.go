@@ -90,7 +90,7 @@ func NewKonsol(cmdspecs []types.CmdSpec) *Konsol {
 			optSet:  optSet,
 			intVals: intVals,
 			strVals: strVals,
-			cmdSpec: &CmdSpec {
+			cmdSpec: &types.CmdSpec {
 				Name: cmdspec.Name,
 				Opts: cmdspec.Opts,
 				CmdFunc: cmdspec.CmdFunc,
