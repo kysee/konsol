@@ -2,7 +2,7 @@ package types
 
 import "fmt"
 
-type CmdFunc func(map[string]int, map[string]string) error
+type CmdFunc func(map[string]*int, map[string]*string) error
 
 type CmdOpt struct {
 	Name string

@@ -34,7 +34,7 @@ func (cw *cmdWorker) do(args []string) error {
 		return err
 	}
 	if cw.cmdSpec.CmdFunc != nil {
-		cw.cmdSpec.CmdFunc(nil, nil)
+		cw.cmdSpec.CmdFunc(cw.intVals, cw.strVals)
 	} else {
 		cw.defaultCmdFunc()
 	}
