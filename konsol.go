@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/kysee/konsol/types"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/kysee/konsol/types"
 )
 
 type cmdWorker struct {
@@ -90,9 +91,9 @@ func NewKonsol(cmdspecs []types.CmdSpec) *Konsol {
 			optSet:  optSet,
 			intVals: intVals,
 			strVals: strVals,
-			cmdSpec: &types.CmdSpec {
-				Name: cmdspec.Name,
-				Opts: cmdspec.Opts,
+			cmdSpec: &types.CmdSpec{
+				Name:    cmdspec.Name,
+				Opts:    cmdspec.Opts,
 				CmdFunc: cmdspec.CmdFunc,
 			},
 		}
