@@ -7,94 +7,40 @@ import (
 	"github.com/kysee/konsol/types"
 	"os"
 	"reflect"
-	"strconv"
 	"strings"
 )
-
-type cmdWorker struct {
-	optSet *flag.FlagSet
-	//valMap map[string]reflect.Value
-	intVals map[string]*int
-	strVals map[string]*string
-
-	cmdSpec *types.CmdSpec
-}
-
-func (cw *cmdWorker) defaultCmdFunc() {
-	for k, v := range cw.intVals {
-		fmt.Printf("%s = %d (int)\n", k, *v)
-	}
-	for k, v := range cw.strVals {
-		fmt.Printf("%s = %d (string)\n", k, *v)
-	}
-}
-
-func (cw *cmdWorker) do(args []string) error {
-	if err := cw.optSet.Parse(args); err != nil {
-		return err
-	}
-	if cw.cmdSpec.CmdFunc != nil {
-		cw.cmdSpec.CmdFunc(cw.intVals, cw.strVals)
-	} else {
-		cw.defaultCmdFunc()
-	}
-	cw.resetOpts()
-	return nil
-}
-
-func (cw *cmdWorker) resetOpts() {
-	for k, v := range cw.intVals {
-		f := cw.optSet.Lookup(k)
-		i, err := strconv.Atoi(f.DefValue)
-		if err != nil {
-			panic("fail reset params")
-		}
-		*v = i
-	}
-	for k, v := range cw.strVals {
-		f := cw.optSet.Lookup(k)
-		*v = f.DefValue
-	}
-}
 
 type Konsol struct {
 	cmdWorkers map[string]*cmdWorker
 }
 
-func NewKonsol(cmdspecs []types.CmdSpec) *Konsol {
+func NewKonsol(cmdspecs []*types.CmdSpec) *Konsol {
 	kcon := &Konsol{
 		cmdWorkers: make(map[string]*cmdWorker),
 	}
 
 	for _, cmdspec := range cmdspecs {
-		optSet := flag.NewFlagSet(cmdspec.Name, flag.ContinueOnError)
-
-		intVals := make(map[string]*int)
-		strVals := make(map[string]*string)
+		flagSet := flag.NewFlagSet(cmdspec.Name, flag.ContinueOnError)
+		args := make(map[string]interface{})
 
 		for _, opt := range cmdspec.Opts {
-			va := reflect.ValueOf(opt.Defv)
+			va := reflect.ValueOf(opt.Default)
 			switch va.Kind() {
 			case reflect.String:
-				strVals[opt.Name] = new(string)
-				optSet.StringVar(strVals[opt.Name], opt.Name, opt.Defv.(string), opt.Desc)
+				args[opt.Name] = flagSet.String(opt.Name, opt.Default.(string), opt.Usage)
 			case reflect.Int:
-				intVals[opt.Name] = new(int)
-				optSet.IntVar(intVals[opt.Name], opt.Name, opt.Defv.(int), opt.Desc)
+				args[opt.Name] = flagSet.Int(opt.Name, opt.Default.(int), opt.Usage)
+			case reflect.Bool:
+				args[opt.Name] = flagSet.Bool(opt.Name, opt.Default.(bool), opt.Usage)
 			default:
 				panic("not supported type for option")
 			}
 		}
 
 		kcon.cmdWorkers[cmdspec.Name] = &cmdWorker{
-			optSet:  optSet,
-			intVals: intVals,
-			strVals: strVals,
-			cmdSpec: &types.CmdSpec {
-				Name: cmdspec.Name,
-				Opts: cmdspec.Opts,
-				CmdFunc: cmdspec.CmdFunc,
-			},
+			flagSet: flagSet,
+			cmdSpec: cmdspec,
+			argsMap: args,
 		}
 	}
 
@@ -149,9 +95,7 @@ func (kcon *Konsol) procInternalCmds(line string) bool {
 }
 
 func (kcon *Konsol) usage() {
-	r := "Command Usage is ...\n"
 	for _, w := range kcon.cmdWorkers {
-		r += w.cmdSpec.StringIntent("  ")
+		w.flagSet.Usage()
 	}
-	fmt.Println(r)
 }
