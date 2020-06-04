@@ -1,1 +1,1 @@
-# Make easy console interface
+# konsol: Make easy console interface
