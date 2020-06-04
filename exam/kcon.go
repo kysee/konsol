@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+
 	cmdspecs := []types.CmdSpec{
 		{"cmd1", []*types.CmdOpt{{"o11", "option11", 1}, {"o12", "option12", 1}}, DoCmn1},
 		{"cmd2", []*types.CmdOpt{{"o21", "option21", 1}, {"o22", "option22", 1}}, DoCmn2},
