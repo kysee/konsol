@@ -2,6 +2,7 @@ package konsol
 
 import (
 	"bufio"
+	"encoding/csv"
 	"flag"
 	"fmt"
 	"github.com/kysee/konsol/types"
@@ -70,7 +71,14 @@ func (kcon *Konsol) Start(name string) {
 			continue
 		}
 
-		if err := kcon.do(strings.Split(line, " ")); err != nil {
+		csvReader := csv.NewReader(strings.NewReader(line))
+		csvReader.Comma = ' '
+		toks, err := csvReader.Read()
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		if err := kcon.do(toks); err != nil {
 			kcon.usage()
 		}
 	}
