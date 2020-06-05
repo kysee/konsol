@@ -25,7 +25,9 @@ func (cw *cmdWorker) do(args []string) error {
 		return err
 	}
 	if cw.cmdSpec.Handler != nil {
-		cw.cmdSpec.Handler(types.NewArgs(cw.argsMap))
+		if err := cw.cmdSpec.Handler(types.NewArgs(cw.argsMap)); err != nil {
+			fmt.Println(err) // just print out not return error.
+		}
 	} else {
 		cw.defaultCmdFunc(types.NewArgs(cw.argsMap))
 	}
